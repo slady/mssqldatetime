@@ -2,7 +2,7 @@
 
 Java utility to convert MSSQL insert script Date and DateTime hex format to readable values.
 
-# Input
+## Input
 
 the input.sql file:
 
@@ -10,7 +10,7 @@ the input.sql file:
 INSERT INTO XXX (Date1, Date2, DateTime1, DateTime2) VALUES (CAST(0x681B0B00 AS Date), CAST(0x963D0B00 AS Date), CAST(0x0000A31500000000 AS DateTime), CAST(0x0000A31500000000 AS DateTime))
 ```
 
-# Usage
+## Usage
 
 run the command:
 
@@ -18,7 +18,7 @@ run the command:
     java -jar mssqldateformatconvert.jar < input.sql > output.sql
 ```
 
-# Output
+## Output
 
 the output.sql file:
 
