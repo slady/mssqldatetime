@@ -10,8 +10,12 @@ public class MSSQLDateTimeConverterTest {
 
 	@Test
 	public void convertDateTime() {
-		String dateTime = MSSQLDateTimeConverter.convertDateTime("0000A315");
-		Assert.assertEquals("2014-04-22 00:00:00.0", dateTime);
+		Assert.assertEquals("2014-04-22 00:00:00.0", MSSQLDateTimeConverter.convertDateTime("0000A31500000000"));
+		Assert.assertEquals("2011-02-09 18:52:34.286", MSSQLDateTimeConverter.convertDateTime("00009E85013711EE"));
+		// actually the exact time information should be "2011-02-09 18:52:34.286667"
+		// the missing part "667" is due to missing nanosecond precision in the Calendar of Java,
+		// but I guess the sub-second precision is all right for the insert,
+		// just to know the limitations
 	}
 
 	@Test
