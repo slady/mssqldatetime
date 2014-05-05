@@ -5,10 +5,15 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 
 public class MSSQLDateTimeFormatConverter {
-	final static String CAST_CONSTANT = "CAST(0x";
-	final static int CAST_CONSTANT_LENGTH = CAST_CONSTANT.length();
-	final static int AS_DATE_LENGTH = " AS Date)".length();
-	final static int AS_DATE_TIME_LENGTH = "00000000 AS DateTime)".length();
+	private static final String CAST_CONSTANT = "CAST(0x";
+	private static final int CAST_CONSTANT_LENGTH = CAST_CONSTANT.length();
+	private static final int AS_DATE_LENGTH = "12345678 AS Date)".length();
+	private static final int AS_DATE_TIME_LENGTH = "1234567812345678 AS DateTime)".length();
+	private static final String AS_DATE_REGEXP = "\\w{8} AS Date\\).*";
+	private static final String AS_DATE_TIME_REGEXP = "\\w{16} AS DateTime\\).*";
+
+	private static final int DATE_TIME_NUMBER_LENGTH = 16;
+	private static final int DATE_NUMBER_LENGTH = 8;
 
 	public static void main(final String[] args) throws IOException {
 		final BufferedReader input = new BufferedReader(new InputStreamReader(System.in));
@@ -38,23 +43,24 @@ public class MSSQLDateTimeFormatConverter {
 			}
 
 			buf.append(line.subSequence(position, found));
-			buf.append('\'');
 			position = found + CAST_CONSTANT_LENGTH;
-			int nextPos = position + 8;
-			final String number = line.substring(position, nextPos);
-			char testChar = line.charAt(nextPos);
-			if (testChar == ' ') {
-				buf.append(MSSQLDateTimeConverter.convertDate(number));
-				nextPos += AS_DATE_LENGTH;
-			} else if (testChar == '0') {
-				buf.append(MSSQLDateTimeConverter.convertDateTime(number));
-				nextPos += AS_DATE_TIME_LENGTH;
-			} else {
-				throw new IllegalStateException("Position: " + nextPos + ", Character: " + testChar);
-			}
+			final String theRestLine = line.substring(position);
 
-			buf.append('\'');
-			position = nextPos;
+			if (theRestLine.matches(AS_DATE_REGEXP)) {
+				final String number = line.substring(position, position + DATE_NUMBER_LENGTH);
+				buf.append('\'');
+				buf.append(MSSQLDateTimeConverter.convertDate(number));
+				buf.append('\'');
+				position += AS_DATE_LENGTH;
+			} else if (theRestLine.matches(AS_DATE_TIME_REGEXP)) {
+				final String number = line.substring(position, position + DATE_TIME_NUMBER_LENGTH);
+				buf.append('\'');
+				buf.append(MSSQLDateTimeConverter.convertDateTime(number));
+				buf.append('\'');
+				position += AS_DATE_TIME_LENGTH;
+			} else {
+				buf.append(CAST_CONSTANT);
+			}
 		}
 		
 		buf.append(line.substring(position));
